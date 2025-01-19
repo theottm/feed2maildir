@@ -126,8 +126,11 @@ Content-Type: text/plain
     def run(self):
         """Do a full run"""
         if self.feeds:
+            print("Check maildir")
             self.check_maildir(self.maildir)
+            print("Find news")
             self.news = self.find_new(self.feeds, self.dbdata)
+            print("Write news")
             for newfeed, posts in self.news.items():
                 for newpost in posts:
                     self.write(self.compose(newfeed, newpost))
