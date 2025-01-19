@@ -93,10 +93,9 @@ class Converter:
     TEMPLATE = u"""MIME-Version: 1.0
 Date: {}
 Subject: {}
-From: {}
-Content-Type: text/plain
+From: {} <feed2maildir>
+Content-Type: text/html
 
-[Feed2Maildir] Read the update here:
 {}
 
 {}
@@ -246,8 +245,7 @@ Content-Type: text/plain
                 self.stripper.reset()
             else:
                 desc = post.description
-        return self.TEMPLATE.format(updated, post.title, title, post.link,
-                                    desc)
+        return self.TEMPLATE.format(updated, post.title, title, post.link, desc)
 
     def write(self, message):
         """Take a message and write it to a mail"""
