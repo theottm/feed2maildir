@@ -187,13 +187,12 @@ Content-Type: text/html
 
     def post_update_time(self, post):
         """Try to get the post time"""
-        try:
+        if hasattr(post, "updated") and post.updated:
             return self.mktime(post.updated)
-        except AttributeError:
-            try:
-                return self.mktime(post.published)
-            except AttributeError: # last resort
-                return datetime.datetime.now()
+        elif hasattr(post, "published") and post.published:
+            return self.mktime(post.published)
+        else:
+            return datetime.datetime.now()
 
     def find_update_time(self, feed):
         """Find the last updated post in a feed"""
