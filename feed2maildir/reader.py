@@ -12,12 +12,12 @@ class Reader:
         self.feeds = []
         self.silent = silent
         with ThreadPool(processes=njobs) as pool:
-            for feed, f in pool.imap_unordered(fetch_and_parse_feed, feeds.items()):
+            for feed, f in map(fetch_and_parse_feed, feeds.items()):
+                print(f"Parsing: {feed}")
                 if f.bozo:
-                    self.output('WARNING: could not parse feed {}'.format(feed))
-                else:
-                    f.feed_alias_name = feed # user provided text
-                    self.feeds.append(f)
+                    self.output('WARNING: Could not fully parse feed: {}'.format(feed))
+                f.feed_alias_name = feed # user provided text
+                self.feeds.append(f)
 
     def output(self, arg):
         if not self.silent:
