@@ -161,7 +161,7 @@ Content-Type: text/html
             # print(feedname, feedup.tzinfo)
             if not oldtime or oldtime < feedup:
                 for post in feed.entries:
-                    feedtime = self.post_update_time(post)
+                    feedtime = self.post_published_time(post)
                     try: # to localize the timezone
                         feedtime = feedtime.astimezone(dateutil.tz.tzutc())
                     except: # it is naive
@@ -185,33 +185,26 @@ Content-Type: text/html
 
         return new
 
-    def post_update_time(self, post):
+    def post_published_time(self, post):
         """Try to get the post time"""
-        if hasattr(post, "updated") and post.updated:
-            return self.mktime(post.updated)
-        elif hasattr(post, "published") and post.published:
+        if hasattr(post, "published") and post.published:
             return self.mktime(post.published)
+        elif hasattr(post, "updated") and post.updated:
+            return self.mktime(post.updated)
         else:
             return datetime.datetime.now()
 
-    def find_update_time(self, feed):
+    def find_published_time(self, feed):
         """Find the last updated post in a feed"""
         times = []
         for post in feed.entries:
-            times.append(self.post_update_time(post))
+            times.append(self.post_published_time(post))
         return sorted(times)[-1]
 
     def feed_update_time(self, feed):
         # find the newest post and get its time
-        newest_post_time = self.find_update_time(feed)
-        try: # to get the update time from the feed itself
-            feed_time = self.mktime(feed.feed.updated)
-        except:
-            return newest_post_time
-        # Some feeds like Youtube do not update the feed's update time.
-        # The value 'feed_time' is a valid date, but outdated so
-        # we have to compare it with the posts' times and get the latest.
-        return max(newest_post_time, feed_time)
+        newest_post_time = self.find_published_time(feed)
+        return newest_post_time
 
     def check_maildir(self, maildir):
         """Check access to the maildir and try to create it if not present"""
@@ -226,14 +219,10 @@ Content-Type: text/html
 
     def compose(self, title, post):
         """Compose the mail using the tempate"""
-        try: # to get the update/publish time from the post
-            updated = post.updated
-        except: # the property is not set, use now()
-            updated = datetime.datetime.now()
+        updated = self.post_published_time(post)
 
         # convert the time to RFC 2822 format, expected by MUA programs
-        d = dateutil.parser.parse(updated)
-        updated = email.utils.formatdate(time.mktime(d.timetuple()), usegmt=True)
+        updated = email.utils.formatdate(time.mktime(updated.timetuple()), usegmt=True)
 
         desc = ''
         if not self.links:
