@@ -16,6 +16,7 @@ class Reader:
                 print(f"Parsing: {feed}")
                 if f.bozo:
                     self.output('WARNING: Could not fully parse feed: {}'.format(feed))
+                    self.output('WARNING: Exception: {}'.format(f.bozo_exception))
                 f.feed_alias_name = feed # user provided text
                 self.feeds.append(f)
 
