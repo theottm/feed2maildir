@@ -144,7 +144,10 @@ Content-Type: text/html
         new = {}
         newtimes = {}
         for feed in feeds:
-            feedname = feed.feed.title
+            if hasattr(feed.feed, "title"):
+                feedname = feed.feed.title
+            else:
+                continue
             feedaliasname = feed.feed_alias_name
             feedup = self.feed_update_time(feed)
             try: # to localize the timezone
